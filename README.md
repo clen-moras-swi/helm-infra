@@ -12,8 +12,8 @@ Chart for deploying web application.
 
 ## Add the chart repository
 
-run `helm repo add squadcast-helm https://squadcasthub.github.io/helm-infra/`
+run `helm repo add squadcasthub https://squadcasthub.github.io/helm-infra/`
 
 ## Install the chart
 
-run `helm install squadcast-helm squadcast-helm/squadcast-helm`
+run `helm install squadcast-helm squadcasthub/squadcast-helm`
