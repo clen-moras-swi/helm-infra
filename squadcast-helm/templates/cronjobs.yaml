@@ -1,0 +1,70 @@
+{{- if ((.Values.cronjobs)).enabled | default false }}
+{{- range $k, $job := .Values.cronjobs.jobs }}
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ include "squadcast-helm.fullname" $ }}-{{ $job.name }}
+  labels:
+    {{- include "squadcast-helm.labels" $ | nindent 4 }}
+  namespace: {{ $.Values.namespace }}
+  annotations:
+    {{- include "squadcast-helm.annotations" $ | nindent 4 }}
+spec:
+  schedule: "{{ $job.schedule }}"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            {{- include "squadcast-helm.selectorLabels" $ | nindent 12 }}
+        spec:
+          serviceAccountName: {{ include "squadcast-helm.serviceAccountName" $ }}
+          volumes:
+          - emptyDir: {}
+            name: config-volume
+          containers:
+          - name: {{ include "squadcast-helm.containerName" $ }}
+            image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
+            imagePullPolicy: IfNotPresent
+            command: {{ $job.command }}
+            args:
+              {{- range $job.args }}
+              - {{ . }}
+              {{- end }}
+            volumeMounts:
+            - mountPath: /config
+              name: config-volume
+          initContainers:
+          - name: aws-secret-fetcher
+            image: amazon/aws-cli
+            imagePullPolicy: Always
+            volumeMounts:
+            - mountPath: /config
+              name: config-volume
+            command:
+            - sh
+            - -c
+            - |
+              set -eo pipefail
+              aws configure set aws_access_key_id $AWS_ACCESS_KEY
+              aws configure set aws_secret_access_key $AWS_SECRET_KEY
+              aws configure set default.region us-east-1
+              mkdir -p /config/
+              # Added 1- in the start of the file name to make sure it is the first file to be read, so that app-secret/app-config can take precedence over common-secrets/common-config.
+              aws secretsmanager get-secret-value --secret-id common-secrets-$AWS_SECRET_MANAGER_ENV --query SecretString --output text > /config/1-common-secrets.json
+              aws secretsmanager get-secret-value --secret-id common-config-$AWS_SECRET_MANAGER_ENV --query SecretString --output text > /config/1-common-config.json
+              if [ -n "$AWS_SECRET_MANAGER_ID" ]; then
+                aws secretsmanager get-secret-value --secret-id $AWS_SECRET_MANAGER_ID-$AWS_SECRET_MANAGER_ENV --query SecretString --output text > /config/app-secret.json
+              else
+                echo "No AWS_SECRET_MANAGER_ID provided, skipping fetching app-secret.json"
+              fi
+              echo $CONFIG > /config/app-config.json
+            env:
+            {{- toYaml $.Values.env | nindent 12 }}
+          restartPolicy: Never
+            
+{{- end }}
+{{- end }}
