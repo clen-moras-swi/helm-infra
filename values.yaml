@@ -82,10 +82,10 @@ tolerations: []
 
 affinity: {}
 
-cronjobs:
-  enabled: false
-  jobs:
-  - name: cronjob1
-    schedule: "*/1 * * * *"
-    command: ["/bin/sh"]
-    args: ["-c", "/app/ingester cron transient-alert-flow /config/1-common-config.json /config/1-common-secrets.json /config/app-config.json"]
+# cronjobs:
+#   enabled: false
+#   jobs:
+#   - name: cronjob1
+#     schedule: "*/1 * * * *"
+#     command: ["/bin/sh"]
+#     args: ["-c", "echo 'hello world'"]
