@@ -82,6 +82,11 @@ tolerations: []
 
 affinity: {}
 
+# To enable service monitor. 
+serviceMonitor:
+  enabled: false
+  port_name: metrics
+
 # cronjobs:
 #   enabled: false
 #   jobs:
