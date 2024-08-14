@@ -1,6 +1,6 @@
 ---
 # PodDisruptionBudget for squadcast-helm
-{{- if .Values.pdb.enabled }}
+{{- if ((.Values.pdb)).enabled | default false }}
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
