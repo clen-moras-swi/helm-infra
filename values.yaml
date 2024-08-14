@@ -94,3 +94,8 @@ serviceMonitor:
 #     schedule: "*/1 * * * *"
 #     command: ["/bin/sh"]
 #     args: ["-c", "echo 'hello world'"]
+
+# to enable pdb
+pdb:
+  enabled: true
+  minAvailable: 1
