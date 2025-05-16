@@ -30,8 +30,8 @@ spec:
       # TODO: Parameterize this so we can fetch it from values.yaml
       # However, It's a single team and a single central ecr registry, so we can hardcode it for now.
       # ecr-credentials is the name of the secret created within Kubernetes to pull images from ECR.
-      imagePullSecrets:
-        - name: ecr-credentials
+      # imagePullSecrets:
+      #   - name: ecr-credentials
 
       containers:
         - name: {{ include "squadcast-helm.containerName" . }}
