@@ -26,17 +26,19 @@ spec:
       serviceAccountName: {{ include "squadcast-helm.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+
+      # TODO: Parameterize this so we can fetch it from values.yaml
+      # However, It's a single team and a single central ecr registry, so we can hardcode it for now.
+      # ecr-credentials is the name of the secret created within Kubernetes to pull images from ECR.
+      imagePullSecrets:
+        - name: ecr-credentials
+
       containers:
         - name: {{ include "squadcast-helm.containerName" . }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          # TODO: Parameterize this so we can fetch it from values.yaml
-          # However, It's a single team and a single central ecr registry, so we can hardcode it for now.
-          # ecr-credentials is the name of the secret created within Kubernetes to pull images from ECR.
-          imagePullSecrets:
-            - name: ecr-credentials
           env:
             {{- toYaml .Values.env | nindent 12 }}
           {{- if .Values.overrideContainerStartCommand.enabled }}
