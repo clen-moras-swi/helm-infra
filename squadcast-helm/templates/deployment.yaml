@@ -81,7 +81,7 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
       initContainers:
         - name: aws-secret-fetcher
-          image: amazon/aws-cli
+          image: public.ecr.aws/aws-cli/aws-cli
           imagePullPolicy: Always
           command:
           - sh
